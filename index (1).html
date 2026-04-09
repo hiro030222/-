@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>私のピラティス — 管理システム</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F5F0;--surface:#FFF;--surface2:#F0EDE6;--border:#E0DBD0;
+  --text:#1A1816;--text2:#6B6560;--text3:#9E9890;
+  --accent:#2D5A3D;--accent-l:#E8F0EB;--accent-m:#4A8C62;
+  --red:#C0392B;--red-l:#FBEAEA;--amber:#B5621E;--amber-l:#FDF3E8;
+  --blue:#1A5276;--blue-l:#EAF2FB;--purple:#6C3483;--purple-l:#F4ECF7;
+  --teal:#0E6655;--teal-l:#E8F6F3;
+  --mono:'DM Mono',monospace;--sans:'Noto Sans JP',sans-serif;
+  --r:10px;--sh:0 1px 4px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+#login-screen{display:none!important;}
+.lcard{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:48px 44px;width:360px;box-shadow:var(--sh);}
+.llogo{font-size:22px;font-weight:700;letter-spacing:.12em;color:var(--accent);margin-bottom:6px;text-transform:uppercase;}
+.lsub{font-size:12px;color:var(--text3);margin-bottom:36px;}
+.flabel{font-size:11px;font-weight:500;color:var(--text2);letter-spacing:.06em;margin-bottom:6px;display:block;text-transform:uppercase;}
+.finput{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--sans);font-size:14px;color:var(--text);background:var(--bg);outline:none;transition:border-color .15s;margin-bottom:18px;}
+.finput:focus{border-color:var(--accent-m);}
+.lbtn{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;transition:background .15s;}
+.lbtn:hover{background:var(--accent-m);}
+.lerr{font-size:12px;color:var(--red);margin-top:10px;text-align:center;min-height:18px;}
+#app-screen{display:block;}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.hlogo{font-size:16px;font-weight:700;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;}
+.hright{display:flex;align-items:center;gap:12px;}
+.hdate{font-size:12px;color:var(--text3);font-family:var(--mono);}
+.hbtn{font-size:12px;color:var(--text2);background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;transition:all .15s;}
+.hbtn:hover{border-color:var(--text2);color:var(--text);}
+.tabs{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;display:flex;}
+.tab{padding:14px 20px;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.tab:hover{color:var(--text2);}.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.main{padding:28px 32px;max-width:1200px;margin:0 auto;}
+.tc{display:none;}.tc.active{display:block;}
+.srow{display:flex;gap:14px;margin-bottom:24px;flex-wrap:wrap;}
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 20px;flex:1;min-width:130px;}
+.slabel{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.sval{font-size:26px;font-weight:700;font-family:var(--mono);}
+.sval.red{color:var(--red);}.sval.amber{color:var(--amber);}.sval.green{color:var(--accent);}
+.ctrl{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.sinput{padding:9px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--sans);font-size:13px;color:var(--text);background:var(--surface);outline:none;width:220px;transition:border-color .15s;}
+.sinput:focus{border-color:var(--accent-m);}
+.fbtn{padding:8px 14px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);font-family:var(--sans);font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.fbtn:hover,.fbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.sp{flex:1;}.slbl{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
+.twrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);}
+table{width:100%;border-collapse:collapse;}
+thead{background:var(--surface2);}
+th{padding:11px 16px;font-size:11px;font-weight:500;color:var(--text2);text-align:left;letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
+th:hover{color:var(--text);}
+td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}tr:hover td{background:#FAFAF8;}tr.on-leave td{opacity:.5;}
+.nbadge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
+.nbadge.green{background:var(--accent-l);color:var(--accent);}.nbadge.blue{background:var(--blue-l);color:var(--blue);}
+.nbadge.purple{background:var(--purple-l);color:var(--purple);}.nbadge.amber{background:var(--amber-l);color:var(--amber);}
+.mc{font-family:var(--mono);font-size:13px;}.rc{font-family:var(--mono);font-size:15px;font-weight:500;}
+.rc-red{color:var(--red);}.rc-amber{color:var(--amber);}.rc-green{color:var(--accent);}
+.abadge{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;}
+.ab-red{background:var(--red-l);color:var(--red);}.ab-amber{background:var(--amber-l);color:var(--amber);}.ab-ok{background:var(--accent-l);color:var(--accent);}
+.dbtn{font-size:11px;color:var(--text3);background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;transition:all .15s;}
+.dbtn:hover{border-color:var(--accent-m);color:var(--accent);}
+.upload-area{border:2px dashed var(--border);border-radius:14px;padding:48px 24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface);margin-bottom:20px;}
+.upload-area:hover,.upload-area.drag{border-color:var(--accent-m);background:var(--accent-l);}
+.upload-icon{font-size:40px;margin-bottom:12px;}
+.upload-title{font-size:15px;font-weight:500;margin-bottom:6px;}
+.upload-sub{font-size:12px;color:var(--text3);}
+.upload-result{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 20px;margin-bottom:16px;}
+.upload-result-title{font-size:13px;font-weight:500;margin-bottom:8px;}
+.upload-result-rows{font-size:12px;color:var(--text2);display:flex;gap:16px;flex-wrap:wrap;}
+.result-num{font-family:var(--mono);font-weight:500;color:var(--text);}
+.csv-preview{background:var(--surface2);border-radius:8px;padding:12px 16px;margin-top:10px;font-size:12px;color:var(--text2);max-height:120px;overflow-y:auto;font-family:var(--mono);}
+.confirm-btn{padding:11px 24px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;}
+.confirm-btn:hover{background:var(--accent-m);}
+.cancel-btn{padding:11px 24px;background:none;color:var(--text2);border:1px solid var(--border);border-radius:var(--r);font-family:var(--sans);font-size:14px;cursor:pointer;margin-left:10px;}
+.member-edit-row{display:flex;align-items:center;gap:16px;padding:12px 16px;border-bottom:1px solid var(--border);transition:background .1s;}
+.member-edit-row:last-child{border-bottom:none;}.member-edit-row:hover{background:var(--surface2);}
+.me-name{font-weight:500;min-width:100px;}.me-tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:10px;font-weight:500;}
+.me-tag.leave{background:var(--amber-l);color:var(--amber);}.me-tag.retired{background:var(--red-l);color:var(--red);}.me-tag.active{background:var(--accent-l);color:var(--accent);}
+.edit-btn{font-size:11px;color:var(--text3);background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;transition:all .15s;margin-left:auto;}
+.edit-btn:hover{border-color:var(--accent-m);color:var(--accent);}
+.igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px;margin-bottom:20px;}
+.icard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--sh);}
+.icard-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+.iname{font-size:17px;font-weight:700;}.icnt{font-size:12px;color:var(--text2);margin-top:2px;}
+.ilist{display:flex;flex-direction:column;gap:5px;max-height:200px;overflow-y:auto;}
+.imem{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--surface2);border-radius:6px;font-size:12px;}
+.imem-name{font-weight:500;}.imem-cnt{font-family:var(--mono);color:var(--text2);}
+.add-ibtn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:2px dashed var(--border);border-radius:var(--r);cursor:pointer;color:var(--text3);font-size:13px;transition:all .15s;background:none;width:100%;}
+.add-ibtn:hover{border-color:var(--accent-m);color:var(--accent);}
+.del-btn{font-size:11px;color:var(--text3);background:none;border:1px solid var(--border);border-radius:4px;padding:3px 8px;cursor:pointer;transition:all .15s;}
+.del-btn:hover{border-color:var(--red);color:var(--red);}
+.arow{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.acard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--sh);}
+.acard.full{grid-column:1/-1;}
+.atitle{font-size:12px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;}
+.barlist{display:flex;flex-direction:column;gap:8px;}
+.barrow{display:flex;align-items:center;gap:10px;}
+.barlabel{font-size:12px;color:var(--text2);min-width:80px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bartrack{flex:1;background:var(--surface2);border-radius:4px;height:22px;overflow:hidden;}
+.barfill{height:100%;border-radius:4px;background:var(--accent);display:flex;align-items:center;padding-left:7px;}
+.barfill.blue{background:var(--blue);}.barfill.amber{background:var(--amber);}.barfill.purple{background:var(--purple);}
+.barval{font-size:11px;font-family:var(--mono);color:#fff;white-space:nowrap;}
+.heatmap{display:grid;grid-template-columns:44px repeat(7,1fr);gap:3px;}
+.hm-cell{height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.hm-hdr{font-size:10px;color:var(--text3);font-weight:500;}.hm-lbl{font-size:10px;color:var(--text2);justify-content:flex-end;padding-right:6px;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:flex-start;justify-content:center;padding-top:60px;}
+.overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:14px;width:560px;max-height:80vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.18);padding:32px;}
+.modal.sm{width:420px;}
+.mhdr{display:flex;align-items:baseline;gap:12px;margin-bottom:24px;}
+.mname{font-size:20px;font-weight:700;}.mcourse{font-size:13px;color:var(--text2);}
+.mclose{margin-left:auto;background:none;border:none;font-size:20px;color:var(--text3);cursor:pointer;}
+.ms-ttl{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;margin-top:20px;}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.si{background:var(--surface2);border-radius:8px;padding:12px 14px;}
+.si-l{font-size:11px;color:var(--text3);margin-bottom:4px;}.si-v{font-size:20px;font-weight:700;font-family:var(--mono);}
+.bklist{display:flex;flex-direction:column;gap:4px;}
+.bkitem{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:6px;font-size:12px;}
+.bkitem.done{background:var(--accent-l);}.bkitem.cancelled{background:var(--surface2);color:var(--text3);}
+.bkitem.makeup{background:var(--teal-l);}
+.bkdate{font-family:var(--mono);min-width:90px;}
+.bktag{font-size:10px;padding:1px 6px;border-radius:10px;font-weight:500;}
+.tag-done{background:var(--accent);color:#fff;}.tag-cancel{background:var(--border);color:var(--text3);}.tag-makeup{background:var(--teal);color:#fff;}
+.makeup-toggle{font-size:10px;padding:2px 7px;border-radius:10px;border:1px solid var(--border);background:none;cursor:pointer;color:var(--text3);transition:all .15s;margin-left:auto;white-space:nowrap;}
+.makeup-toggle:hover{border-color:var(--teal);color:var(--teal);}.makeup-toggle.on{background:var(--teal-l);border-color:var(--teal);color:var(--teal);}
+.sminput{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--sans);font-size:14px;color:var(--text);background:var(--bg);outline:none;margin-bottom:14px;}
+.sminput:focus{border-color:var(--accent-m);}
+.smselect{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--sans);font-size:14px;color:var(--text);background:var(--bg);outline:none;margin-bottom:14px;appearance:none;}
+.gbtn{padding:11px 20px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;width:100%;}
+.gbtn:hover{background:var(--accent-m);}
+.pmsg{font-size:12px;text-align:center;min-height:16px;margin-top:6px;}
+.form-row{display:flex;gap:10px;margin-bottom:14px;}
+.form-row .sminput,.form-row .smselect{margin-bottom:0;}
+.sdiv{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;padding:8px 0 10px;border-bottom:1px solid var(--border);margin-bottom:14px;}
+.footer{text-align:center;font-size:11px;color:var(--text3);padding:32px;}
+@media(max-width:640px){.arow{grid-template-columns:1fr;}.igrid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div id="login-screen">
+  <div class="lcard">
+    <div class="llogo">私のピラティス</div>
+    <div class="lsub">ダッシュボード</div>
+    <label class="flabel">ID</label>
+    <input class="finput" type="text" id="lid" placeholder="ID を入力" autocomplete="username">
+    <label class="flabel">パスワード</label>
+    <input class="finput" type="password" id="lpw" placeholder="パスワードを入力" autocomplete="current-password">
+    <button class="lbtn" onclick="doLogin()">ログイン</button>
+    <div class="lerr" id="lerr"></div>
+  </div>
+</div>
+<div id="app-screen">
+  <div class="header">
+    <div class="hlogo">私のピラティス</div>
+    <div class="hright">
+      <span class="hdate" id="today-label"></span>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active"  onclick="switchTab('members')">未消化回数</div>
+    <div class="tab"         onclick="switchTab('upload')">データ取込</div>
+    <div class="tab"         onclick="switchTab('master')">会員マスタ</div>
+    <div class="tab"         onclick="switchTab('instructors')">インストラクター</div>
+    <div class="tab"         onclick="switchTab('analytics')">アナリティクス</div>
+  </div>
+  <div class="main">
+    <div class="tc active" id="tab-members">
+      <div class="srow" id="stats-row"></div>
+      <div class="ctrl">
+        <button class="fbtn" onclick="allData=calcAll();renderStats();renderMembers();" style="border-color:var(--accent);color:var(--accent);white-space:nowrap">🔄 再計算</button>
+        <input class="sinput" id="search" type="text" placeholder="会員名で検索..." oninput="renderMembers()">
+        <button class="fbtn active" id="f-all"   onclick="setFilter('all')">全員</button>
+        <button class="fbtn"        id="f-alert" onclick="setFilter('alert')">要確認（4回以上）</button>
+        <button class="fbtn"        id="f-over"  onclick="setFilter('over')">消化超過</button>
+        <div class="sp"></div><span class="slbl" id="cnt-lbl"></span>
+      </div>
+      <div class="twrap"><table>
+        <thead><tr>
+          <th onclick="srt('name')">会員名</th><th onclick="srt('course')">コース</th>
+          <th onclick="srt('grantedTotal')">有効付与</th><th onclick="srt('used')">消化済み</th>
+          <th onclick="srt('expired')">失効</th><th onclick="srt('remain')">残回数</th><th>ステータス</th><th></th>
+        </tr></thead>
+        <tbody id="members-body"></tbody>
+      </table></div>
+    </div>
+    <div class="tc" id="tab-upload">
+      <!-- ★ 手動予約追加ボタン -->
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+        <button class="fbtn" style="background:var(--accent);color:#fff;border-color:var(--accent)" onclick="openManualBk()">＋ 予約を手動入力</button>
+      </div>
+      <div class="upload-area" id="drop-area" onclick="document.getElementById('csv-file-input').click()">
+        <div class="upload-icon">📂</div>
+        <div class="upload-title">CSVファイルをドロップ、またはクリックして選択</div>
+        <div class="upload-sub" style="margin-top:6px">予約管理システムからエクスポートしたCSVファイルに対応</div>
+        <div class="upload-sub" style="margin-top:4px">列：予約受付日・予約キャンセル・名前・予約対象・予約日・予約時間・合計金額・決済</div>
+      </div>
+      <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="handleFileSelect(this)">
+      <div id="upload-preview" style="display:none">
+        <div class="upload-result">
+          <div class="upload-result-title">読み込み結果</div>
+          <div class="upload-result-rows" id="upload-stats"></div>
+          <div class="csv-preview" id="csv-preview-rows"></div>
+        </div>
+        <button class="confirm-btn" onclick="confirmImport()">この内容でインポートする</button>
+        <button class="cancel-btn" onclick="cancelImport()">キャンセル</button>
+      </div>
+      <div style="margin-top:28px">
+        <div style="font-size:12px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">取込履歴</div>
+        <div style="text-align:right;margin-bottom:6px;"><button class="fbtn" onclick="clearImportHist()" style="font-size:11px;color:var(--red);border-color:var(--red-l);">履歴をクリア</button></div>
+        <div class="twrap"><table>
+          <thead><tr><th>取込日時</th><th>新規件数</th><th>上書き件数</th></tr></thead>
+          <tbody id="import-history-body"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="tc" id="tab-master">
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+        <div class="upload-area" style="flex:1;min-width:260px;padding:16px 20px;display:flex;align-items:center;gap:14px;text-align:left;" onclick="document.getElementById('master-csv-input').click()">
+          <div style="font-size:22px">📋</div>
+          <div><div class="upload-title" style="font-size:13px">会員マスタCSVをアップロード</div>
+          <div class="upload-sub">列：名前, コース, 契約開始日, 繰越回数（任意）, 休会開始日（任意）, 休会終了日（任意）</div></div>
+          <input type="file" id="master-csv-input" accept=".csv" style="display:none" onchange="handleMasterCSV(this)">
+        </div>
+        <button class="fbtn" style="border-color:var(--accent);color:var(--accent);white-space:nowrap" onclick="downloadMasterTemplate()">📥 テンプレートをダウンロード</button>
+      </div>
+      <div id="unregistered-alert" style="display:none;background:var(--amber-l);border-left:3px solid var(--amber);border-radius:0 var(--r) var(--r) 0;padding:12px 16px;margin-bottom:16px;font-size:13px;">
+        <div style="font-weight:500;color:var(--amber);margin-bottom:8px">予約データに未登録の会員が見つかりました</div>
+        <div id="unregistered-list" style="margin-bottom:10px"></div>
+        <button class="fbtn" style="border-color:var(--accent);color:var(--accent)" onclick="bulkAddUnregistered()">一括で会員マスタに追加</button>
+      </div>
+      <div class="ctrl">
+        <input class="sinput" id="master-search" type="text" placeholder="会員名で検索..." oninput="renderMaster()">
+        <button class="fbtn active" id="mf-all"     onclick="setMF('all')">全員</button>
+        <button class="fbtn"        id="mf-active"  onclick="setMF('active')">在籍中</button>
+        <button class="fbtn"        id="mf-leave"   onclick="setMF('leave')">休会中</button>
+        <button class="fbtn"        id="mf-retired" onclick="setMF('retired')">退会</button>
+        <div class="sp"></div>
+        <button class="fbtn" style="background:var(--accent);color:#fff;border-color:var(--accent)" onclick="openAddMember()">＋ 会員追加</button>
+      </div>
+      <div class="twrap">
+        <div class="member-edit-row" style="background:var(--surface2);font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">
+          <span style="min-width:100px">氏名</span>
+          <span style="min-width:80px;margin-left:16px">コース</span>
+          <span style="min-width:90px;margin-left:16px">契約開始</span>
+          <span style="min-width:60px;margin-left:16px">状態</span>
+          <span style="min-width:150px;margin-left:16px">休会期間</span>
+        </div>
+        <div id="master-body"></div>
+      </div>
+    </div>
+    <div class="tc" id="tab-instructors">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+        <label style="font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;">表示月</label>
+        <select id="instr-month-sel" class="sinput" style="width:160px" onchange="renderInstructors()">
+          <option value="all">すべての期間</option>
+        </select>
+        <label style="font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;">店舗</label>
+        <select id="instr-store-sel" class="sinput" style="width:140px" onchange="renderInstructors()">
+          <option value="all">全店舗</option>
+          <option value="大通店">大通店</option>
+          <option value="円山店">円山店</option>
+        </select>
+      </div>
+      <div class="srow" id="instr-stats"></div>
+      <div class="igrid" id="instr-grid"></div>
+      <button class="add-ibtn" onclick="openModal('add-instr-modal')">＋ インストラクターを追加</button>
+    </div>
+    <div class="tc" id="tab-analytics">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+        <label style="font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;">表示月</label>
+        <select id="analytics-month-sel" class="sinput" style="width:160px" onchange="renderAnalytics()">
+          <option value="all">すべての期間</option>
+        </select>
+        <label style="font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;">店舗</label>
+        <select id="analytics-store-sel" class="sinput" style="width:140px" onchange="renderAnalytics()">
+          <option value="all">全店舗</option>
+          <option value="大通店">大通店</option>
+          <option value="円山店">円山店</option>
+        </select>
+      </div>
+      <div class="arow">
+        <div class="acard"><div class="atitle">会員別 来店回数</div><div class="barlist" id="visit-rank"></div></div>
+        <div class="acard"><div class="atitle">インストラクター別 担当回数</div><div class="barlist" id="instr-rank"></div></div>
+      </div>
+      <div class="arow">
+        <div class="acard full"><div class="atitle">曜日 × 時間帯 予約ヒートマップ</div><div class="heatmap" id="heatmap"></div></div>
+      </div>
+      <div class="arow">
+        <div class="acard full"><div class="atitle">月別 来店回数の推移</div><canvas id="trend-chart" height="120"></canvas></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">私のピラティス 管理システム</div>
+</div>
+
+<!-- 詳細モーダル -->
+<div class="overlay" id="detail-modal">
+  <div class="modal">
+    <div class="mhdr"><span class="mname" id="m-name"></span><span class="mcourse" id="m-course"></span><button class="mclose" onclick="closeModal('detail-modal')">✕</button></div>
+    <div id="m-content"></div>
+  </div>
+</div>
+<!-- 会員編集モーダル -->
+<div class="overlay" id="member-edit-modal">
+  <div class="modal sm">
+    <div class="mhdr"><span class="mname" id="edit-title">会員情報編集</span><button class="mclose" onclick="closeModal('member-edit-modal')">✕</button></div>
+    <input type="hidden" id="edit-id">
+    <div class="sdiv">基本情報</div>
+    <label class="flabel">氏名</label><input class="sminput" type="text" id="edit-name">
+    <label class="flabel">メールアドレス</label><input class="sminput" type="email" id="edit-email" placeholder="例：example@gmail.com">
+    <label class="flabel">コース</label>
+    <select class="smselect" id="edit-course"><option>月2回</option><option>月3回</option><option>月4回</option><option>週1回</option><option>週2回</option><option>隔週1回</option></select>
+    <label class="flabel">契約開始日</label><input class="sminput" type="date" id="edit-start">
+    <div class="sdiv">コース変更履歴</div>
+    <div id="course-history-list" style="margin-bottom:10px"></div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
+      <select class="sminput" id="ch-course" style="margin-bottom:0;flex:1"><option>月2回</option><option>月3回</option><option>月4回</option><option>週1回</option><option>週2回</option><option>隔週1回</option></select>
+      <input class="sminput" type="date" id="ch-date" style="margin-bottom:0;flex:1">
+      <button class="gbtn" style="width:auto;padding:0 16px;height:40px;white-space:nowrap;flex-shrink:0" onclick="addCourseHistory()">追加</button>
+    </div>
+    <div class="sdiv">休会設定</div>
+    <div class="form-row">
+      <div style="flex:1"><label class="flabel">休会開始日</label><input class="sminput" type="date" id="edit-ls" style="margin-bottom:0"></div>
+      <div style="flex:1"><label class="flabel">休会終了日</label><input class="sminput" type="date" id="edit-le" style="margin-bottom:0"></div>
+    </div>
+    <div style="margin-bottom:14px"></div>
+    <div class="sdiv">退会</div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-bottom:14px">
+      <input type="checkbox" id="edit-retired" style="width:16px;height:16px"> 退会済みにする
+    </label>
+    <button class="gbtn" onclick="saveMemberEdit()">保存する</button>
+    <div class="pmsg" id="edit-msg"></div>
+  </div>
+</div>
+<!-- 会員追加モーダル -->
+<div class="overlay" id="add-member-modal">
+  <div class="modal sm">
+    <div class="mhdr"><span class="mname">会員追加</span><button class="mclose" onclick="closeModal('add-member-modal')">✕</button></div>
+    <label class="flabel">氏名</label><input class="sminput" type="text" id="new-name" placeholder="例：山田 花子">
+    <label class="flabel">メールアドレス</label><input class="sminput" type="email" id="new-email" placeholder="例：example@gmail.com">
+    <label class="flabel">コース</label>
+    <select class="smselect" id="new-course"><option>月2回</option><option>月3回</option><option>月4回</option><option>週1回</option><option>週2回</option><option>隔週1回</option></select>
+    <label class="flabel">契約開始日</label><input class="sminput" type="date" id="new-start">
+    <label class="flabel">繰越回数（初期値）</label><input class="sminput" type="number" id="new-carry" value="0" min="0">
+    <button class="gbtn" onclick="addMember()">追加する</button>
+    <div class="pmsg" id="add-msg"></div>
+  </div>
+</div>
+<!-- インストラクター追加モーダル -->
+<div class="overlay" id="add-instr-modal">
+  <div class="modal sm">
+    <div class="mhdr"><span class="mname">インストラクター追加</span><button class="mclose" onclick="closeModal('add-instr-modal')">✕</button></div>
+    <label class="flabel">表示名（例：YUKI）</label>
+    <input class="sminput" type="text" id="new-instr" placeholder="名前を入力（英字推奨）">
+    <button class="gbtn" onclick="addInstructor()">追加する</button>
+    <div class="pmsg" id="instr-msg"></div>
+  </div>
+</div>
+<!-- ★ 繰越回数編集モーダル -->
+<div class="overlay" id="carry-edit-modal">
+  <div class="modal sm">
+    <div class="mhdr"><span class="mname" id="carry-edit-name"></span><button class="mclose" onclick="closeModal('carry-edit-modal')">✕</button></div>
+    <input type="hidden" id="carry-edit-id">
+    <div style="background:var(--surface2);border-radius:10px;padding:16px 20px;margin-bottom:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center;">
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">有効付与</div><div style="font-size:22px;font-weight:700;font-family:var(--mono)" id="carry-granted">—</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">消化済み</div><div style="font-size:22px;font-weight:700;font-family:var(--mono)" id="carry-used">—</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">残回数</div><div style="font-size:22px;font-weight:700;font-family:var(--mono)" id="carry-remain">—</div></div>
+      </div>
+    </div>
+    <label class="flabel">繰越回数（初期値）を変更</label>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <button onclick="stepCarry(-1)" style="width:40px;height:40px;border:1px solid var(--border);border-radius:8px;background:var(--surface);font-size:20px;cursor:pointer;">−</button>
+      <input class="sminput" type="number" id="carry-val" min="0" style="margin-bottom:0;text-align:center;font-size:20px;font-weight:700;flex:1">
+      <button onclick="stepCarry(1)" style="width:40px;height:40px;border:1px solid var(--border);border-radius:8px;background:var(--surface);font-size:20px;cursor:pointer;">＋</button>
+    </div>
+    <button class="gbtn" onclick="saveCarryEdit()">保存する</button>
+    <div class="pmsg" id="carry-msg"></div>
+  </div>
+</div>
+<!-- ★ 手動予約入力モーダル -->
+<div class="overlay" id="manual-bk-modal">
+  <div class="modal sm">
+    <div class="mhdr"><span class="mname">予約を手動入力</span><button class="mclose" onclick="closeModal('manual-bk-modal')">✕</button></div>
+    <label class="flabel">会員名</label>
+    <select class="smselect" id="mbk-name"></select>
+    <label class="flabel">予約日</label>
+    <input class="sminput" type="date" id="mbk-date">
+    <label class="flabel">開始時間（任意）</label>
+    <input class="sminput" type="time" id="mbk-time">
+    <label class="flabel">インストラクター</label>
+    <select class="smselect" id="mbk-instr"></select>
+    <label class="flabel">店舗</label>
+    <select class="smselect" id="mbk-store">
+      <option value="大通店">大通店</option>
+      <option value="円山店">円山店</option>
+    </select>
+    <label class="flabel">種別</label>
+    <select class="smselect" id="mbk-type">
+      <option value="normal">通常予約（消化あり）</option>
+      <option value="makeup">補講（消化なし）</option>
+      <option value="cancel">キャンセル</option>
+    </select>
+    <button class="gbtn" onclick="saveManualBk()">追加する</button>
+    <div class="pmsg" id="mbk-msg"></div>
+  </div>
+</div>
+<!-- PWモーダル -->
+<div class="overlay" id="pw-modal">
+  <div class="modal sm">
+    <div class="mhdr"><span class="mname">パスワード変更</span><button class="mclose" onclick="closeModal('pw-modal')">✕</button></div>
+    <label class="flabel">現在のパスワード</label><input class="sminput" type="password" id="pw-cur">
+    <label class="flabel">新しいパスワード</label><input class="sminput" type="password" id="pw-new">
+    <label class="flabel">確認</label><input class="sminput" type="password" id="pw-cf">
+    <button class="gbtn" onclick="changePw()">変更する</button>
+    <div class="pmsg" id="pw-msg"></div>
+  </div>
+</div>
+<script>
+const SEED_MEMBERS=[]
+const SEED_BK=[]
+const TODAY=new Date();
+if(!localStorage.getItem('piratis_v9_init')){
+  localStorage.removeItem('piratis_members');
+  localStorage.removeItem('piratis_bookings');
+  localStorage.removeItem('piratis_makeup');
+  localStorage.removeItem('piratis_ihist');
+  localStorage.removeItem('piratis_instrs');
+  localStorage.removeItem('piratis_v7_init');
+  localStorage.removeItem('piratis_v8_init');
+  localStorage.setItem('piratis_v9_init','1');
+}
+let PASS=localStorage.getItem('piratis_pass')||'pilates2025';
+if(!PASS||PASS.length<4){PASS='pilates2025';localStorage.removeItem('piratis_pass');}
+let members=JSON.parse(localStorage.getItem('piratis_members')||'null')||JSON.parse(JSON.stringify(SEED_MEMBERS));
+let bkMap=JSON.parse(localStorage.getItem('piratis_bookings')||'null')||Object.fromEntries(SEED_BK.map(b=>[b.key,b]));
+let makeup=JSON.parse(localStorage.getItem('piratis_makeup')||'{}');
+let instructors=JSON.parse(localStorage.getItem('piratis_instrs')||'null')||["RINA","MIHO","AYA","YUKA","SATOMI","AZUMI"];
+let importHist=JSON.parse(localStorage.getItem('piratis_ihist')||'[]');
+let pendingImport=null,allData=[],curFilter='all',mf='all',sortKey='remain',sortDir=-1;
+let nextId=Math.max(...members.map(m=>m.id),0)+1;
+function bks(){return Object.values(bkMap);}
+// ── Supabase ──────────────────────────────────────────────
+const SB_URL='https://eqcfyjpvtyqfrsebigmc.supabase.co';
+const SB_KEY='sb_publishable_vNIjGWe42N2QmmTztkPpIQ_wDfnZL0J';
+async function sbQ(path,method='GET',body=null,prefer=''){
+  const headers={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+  if(prefer)headers['Prefer']=prefer;
+  const opts={method,headers};
+  if(body)opts.body=JSON.stringify(body);
+  const res=await fetch(SB_URL+'/rest/v1/'+path,opts);
+  if(!res.ok){const t=await res.text();throw new Error('SB '+res.status+': '+t);}
+  const ct=res.headers.get('content-type')||'';
+  return ct.includes('json')?res.json():null;
+}
+async function sbLoadAll(){
+  showLoading(true);
+  try{
+    const [mRows,bRows,iRows,ihRows]=await Promise.all([
+      sbQ('members?select=*&order=id'),
+      sbQ('bookings?select=*&order=date'),
+      sbQ('instructors?select=*'),
+      sbQ('import_history?select=*&order=id.desc&limit=20'),
+    ]);
+    if(mRows&&mRows.length>0){
+      members=mRows.map(r=>{
+        const ch=r.course_history||[{course:r.course,startDate:r.start_date}];
+        return {id:r.id,name:r.name,course:r.course,startDate:r.start_date,
+          carryOver:r.carry_over||0,email:r.email||'',
+          leaveStart:r.leave_start||null,leaveEnd:r.leave_end||null,
+          retired:r.retired||false,courseHistory:ch};
+      });
+    }
+    if(bRows&&bRows.length>0){
+      bkMap={};
+      bRows.forEach(r=>{bkMap[r.key]={key:r.key,date:r.date,name:r.name,
+        cancelled:r.cancelled,instr:r.instr||'',store:r.store||'',
+        time:r.time||'',makeup:r.makeup||false,email:r.email||''};
+        if(r.makeup)makeup[r.key]=true;
+      });
+    }
+    if(iRows&&iRows.length>0)instructors=iRows.map(r=>r.name);
+    if(ihRows)importHist=ihRows.map(r=>{return {time:r.imported_at,nc:r.new_count,oc:r.overwrite_count}});
+    save();
+  }catch(e){
+    console.error('Supabase load error:',e);
+    showLoading(false);
+    return false;
+  }
+  showLoading(false);
+  return true;
+}
+async function sbSaveMembers(){
+  if(!members.length)return;
+  const rows=members.map(m=>{return {
+    id:m.id,name:m.name,course:m.course,start_date:m.startDate,
+    carry_over:m.carryOver||0,email:m.email||'',
+    leave_start:m.leaveStart||null,leave_end:m.leaveEnd||null,
+    retired:m.retired||false,course_history:m.courseHistory||[]
+  }});
+  for(let i=0;i<rows.length;i+=100){
+    await sbQ('members?on_conflict=id','POST',rows.slice(i,i+100),'resolution=merge-duplicates,return=minimal');
+  }
+}
+async function sbSaveBookings(bkList){
+  if(!bkList.length)return;
+  const rows=bkList.map(b=>{return {
+    key:b.key,date:b.date,name:b.name,cancelled:b.cancelled,
+    instr:b.instr||'',store:b.store||'',time:b.time||'',
+    makeup:b.makeup||false,email:b.email||''
+  }});
+  for(let i=0;i<rows.length;i+=500){
+    await sbQ('bookings?on_conflict=key','POST',rows.slice(i,i+500),'resolution=merge-duplicates,return=minimal');
+  }
+}
+async function sbSaveInstructors(){
+  await sbQ('instructors?name=neq.____','DELETE');
+  if(instructors.length)
+    await sbQ('instructors?on_conflict=name','POST',instructors.map(n=>{return {name:n}}),'resolution=merge-duplicates,return=minimal');
+}
+async function sbSaveImportHist(entry){
+  await sbQ('import_history','POST',[{imported_at:entry.time,new_count:entry.nc,overwrite_count:entry.oc}],'return=minimal');
+}
+function showLoading(on){
+  let el=document.getElementById('sb-loading');
+  if(!el){
+    el=document.createElement('div');el.id='sb-loading';
+    el.style.cssText='position:fixed;inset:0;background:rgba(255,255,255,.75);display:flex;align-items:center;justify-content:center;z-index:999;';
+    el.innerHTML='<div style="background:#fff;padding:24px 32px;border-radius:12px;border:1px solid #E0DBD0;box-shadow:0 4px 20px rgba(0,0,0,.1);font-size:14px;color:#6B6560;">データを同期しています...</div>';
+    document.body.appendChild(el);
+  }
+  el.style.display=on?'flex':'none';
+}
+function save(){
+  localStorage.setItem('piratis_members',JSON.stringify(members));
+  localStorage.setItem('piratis_bookings',JSON.stringify(bkMap));
+  localStorage.setItem('piratis_makeup',JSON.stringify(makeup));
+  localStorage.setItem('piratis_instrs',JSON.stringify(instructors));
+  localStorage.setItem('piratis_ihist',JSON.stringify(importHist));
+}
+function doLogin(){
+  const id=document.getElementById('lid').value.trim(),pw=document.getElementById('lpw').value;
+  if(id==='piratis'&&(pw===PASS||pw==='pilates2025')){document.getElementById('login-screen').style.display='none';document.getElementById('app-screen').style.display='block';init();}
+  else document.getElementById('lerr').textContent='IDまたはパスワードが正しくありません';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('login-screen').style.display!=='none')doLogin();});
+function doLogout(){document.getElementById('app-screen').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('lpw').value='';document.getElementById('lerr').textContent='';}
+function changePw(){
+  const cur=document.getElementById('pw-cur').value,nw=document.getElementById('pw-new').value,cf=document.getElementById('pw-cf').value,msg=document.getElementById('pw-msg');
+  if(cur!==PASS){msg.style.color='var(--red)';msg.textContent='現在のパスワードが違います';return;}
+  if(nw.length<6){msg.style.color='var(--red)';msg.textContent='6文字以上で設定してください';return;}
+  if(nw!==cf){msg.style.color='var(--red)';msg.textContent='パスワードが一致しません';return;}
+  PASS=nw;localStorage.setItem('piratis_pass',nw);msg.style.color='var(--accent)';msg.textContent='変更しました';setTimeout(()=>closeModal('pw-modal'),1200);
+}
+function switchTab(t){
+  const ns=['members','upload','master','instructors','analytics'];
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',ns[i]===t));
+  document.querySelectorAll('.tc').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  if(t==='members'){allData=calcAll();renderStats();renderMembers();}
+  if(t==='master'){renderMaster();checkUnregistered();}
+  if(t==='instructors')renderInstructors();
+  if(t==='analytics')renderAnalytics();
+  if(t==='upload'){renderIH();initDropArea();}
+}
+function getMondays(y,m){const r=[],d=new Date(y,m-1,1);while(d.getDay()!==1)d.setDate(d.getDate()+1);while(d.getMonth()===m-1){r.push(new Date(d));d.setDate(d.getDate()+7);}return r;}
+function isLeave(mem,y,m){
+  if(!mem.leaveStart||!mem.leaveEnd)return false;
+  const ls=mem.leaveStart.slice(0,7);
+  const le=mem.leaveEnd.slice(0,7);
+  const ym=`${y}-${String(m).padStart(2,'0')}`;
+  return ls<=ym&&le>=ym;
+}
+function getCourseAt(mem,y,mo){
+  const hist=(mem.courseHistory||[{course:mem.course,startDate:mem.startDate}])
+    .slice().sort((a,b)=>a.startDate.localeCompare(b.startDate));
+  const ym=`${y}-${String(mo).padStart(2,"0")}-01`;
+  let course=hist[0].course;
+  for(const h of hist){if(h.startDate<=ym)course=h.course;}
+  return course;
+}
+function calcMonthlyGrant(mem,y,mo){
+  if(isLeave(mem,y,mo))return 0;
+  const course=getCourseAt(mem,y,mo);
+  const startStr=mem.startDate||'2026-03-01';
+  const ymStr=`${y}-${String(mo).padStart(2,'0')}`;
+  if(ymStr<startStr.slice(0,7))return 0;
+  if(course==='月2回')return 2;
+  if(course==='月3回')return 3;
+  if(course==='月4回')return 4;
+  if(course==='週1回'){
+    return getMondays(y,mo).filter(d=>d.toISOString().slice(0,10)>=startStr).length;
+  }
+  if(course==='週2回'){
+    return getMondays(y,mo).filter(d=>d.toISOString().slice(0,10)>=startStr).length*2;
+  }
+  if(course==='隔週1回'){
+    const base=new Date(mem.startDate);let d=new Date(base),cnt=0;
+    while(d<=TODAY){
+      const ds=d.toISOString().slice(0,10);
+      if(d.getFullYear()===y&&d.getMonth()+1===mo&&ds>=startStr)cnt++;
+      d.setDate(d.getDate()+14);
+    }
+    return cnt;
+  }
+  return 0;
+}
+function calcG(mem){
+  const CALC_START_Y=2026,CALC_START_MO=3;
+  const ty=TODAY.getFullYear(),tm=TODAY.getMonth()+1;
+  const queue=[];
+  if(mem.carryOver>0){
+    queue.push({amount:mem.carryOver,expiry:'2026-05-31'});
+  }
+  let y=CALC_START_Y,mo=CALC_START_MO;
+  while(y<ty||(y===ty&&mo<=tm)){
+    const n=calcMonthlyGrant(mem,y,mo);
+    if(n>0){
+      const exp=new Date(y,mo+2,0);
+      queue.push({amount:n,expiry:exp.toISOString().slice(0,10)});
+    }
+    mo++;if(mo>12){mo=1;y++;}
+  }
+  const consumed=bks()
+    .filter(b=>b.name===mem.name&&!b.cancelled&&!makeup[b.key])
+    .map(b=>b.date).sort();
+  let qIdx=0,qRem=queue[0]?.amount||0;
+  for(const date of consumed){
+    while(qIdx<queue.length&&qRem===0){qIdx++;qRem=queue[qIdx]?.amount||0;}
+    if(qIdx>=queue.length)break;
+    qRem--;
+    if(qRem===0){qIdx++;qRem=queue[qIdx]?.amount||0;}
+  }
+  const todayStr=TODAY.toISOString().slice(0,10);
+  let remaining=0;
+  let toConsume=consumed.length;
+  let expired=0;
+  for(const entry of queue){
+    if(toConsume>=entry.amount){toConsume-=entry.amount;continue;}
+    const leftInEntry=entry.amount-toConsume;
+    toConsume=0;
+    if(entry.expiry<todayStr){expired+=leftInEntry;}
+    else{remaining+=leftInEntry;}
+  }
+  const totalGranted=queue.reduce((s,e)=>s+e.amount,0);
+  const validGranted=totalGranted-expired;
+  return {grantedTotal:validGranted,totalGranted,used:consumed.length,expired,remain:remaining};
+}
+function calcAll(){
+  return members.filter(m=>!m.retired).map(mem=>{
+    const r=calcG(mem);
+    return {...mem,grantedTotal:r.grantedTotal,used:r.used,expired:r.expired,remain:r.remain,
+      onLeave:isLeave(mem,TODAY.getFullYear(),TODAY.getMonth()+1)};
+  });
+}
+async function init(){
+  const d=TODAY;document.getElementById('today-label').textContent=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 現在`;
+  const loaded=await sbLoadAll();
+  if(!loaded)console.warn('Using localStorage fallback');
+  allData=calcAll();renderStats();renderMembers();populateMonthSelectors();
+  checkUnregistered();renderIH();
+  setTimeout(initDropArea,100);
+}
+function renderStats(){
+  const total=allData.length,al=allData.filter(m=>m.remain>=4).length,ov=allData.filter(m=>m.remain<0).length;
+  const avg=(allData.reduce((s,m)=>s+m.remain,0)/Math.max(total,1)).toFixed(1);
+  document.getElementById('stats-row').innerHTML=`
+    <div class="scard"><div class="slabel">在籍会員数</div><div class="sval">${total}</div></div>
+    <div class="scard"><div class="slabel">要確認（4回以上）</div><div class="sval red">${al}</div></div>
+    <div class="scard"><div class="slabel">消化超過</div><div class="sval amber">${ov}</div></div>
+    <div class="scard"><div class="slabel">平均残回数</div><div class="sval green">${avg}</div></div>`;
+}
+function setFilter(f){curFilter=f;['all','alert','over'].forEach(k=>document.getElementById('f-'+k).classList.toggle('active',k===f));renderMembers();}
+function srt(k){if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=-1;}renderMembers();}
+function cc(c){return c==='月2回'?'green':c==='月3回'?'blue':c==='月4回'?'purple':c==='週2回'?'purple':'amber';}
+function renderMembers(){
+  const q=document.getElementById('search').value.trim();
+  let data=[...allData];
+  if(q)data=data.filter(m=>m.name.includes(q));
+  if(curFilter==='alert')data=data.filter(m=>m.remain>=4);
+  if(curFilter==='over')data=data.filter(m=>m.remain<0);
+  data.sort((a,b)=>{let av=a[sortKey]??'',bv=b[sortKey]??'';return typeof av==='string'?av.localeCompare(bv)*sortDir:(av-bv)*sortDir;});
+  document.getElementById('cnt-lbl').textContent=`${data.length}名表示`;
+  document.getElementById('members-body').innerHTML=data.map(m=>{
+    const rc=m.remain>=4?'rc-red':m.remain<0?'rc-amber':'rc-green';
+    const badge=m.remain>=4?`<span class="abadge ab-red">▲ 要確認</span>`:m.remain<0?`<span class="abadge ab-amber">▼ 超過</span>`:`<span class="abadge ab-ok">正常</span>`;
+    return `<tr class="${m.onLeave?'on-leave':''}">
+      <td style="font-weight:500">${m.name}${m.onLeave?' <span style="font-size:10px;color:var(--text3)">(休会中)</span>':''}</td>
+      <td><span class="nbadge ${cc(m.course)}">${m.course}</span></td>
+      <td class="mc">${m.grantedTotal}</td><td class="mc">${m.used}</td>
+      <td class="mc" style="color:var(--text3)">${m.expired||0}</td><td class="rc ${rc}">${m.remain}</td><td>${badge}</td>
+      <td style="white-space:nowrap"><button class="dbtn" onclick="openDetail(${m.id})">詳細</button> <button class="dbtn" onclick="openCarryEdit(${m.id})" style="border-color:var(--accent-m);color:var(--accent)">編集</button></td>
+    </tr>`;
+  }).join('');
+}
+function openDetail(id){
+  const m=members.find(x=>x.id===id);
+  document.getElementById('m-name').textContent=m.name;
+  document.getElementById('m-course').textContent=`${m.course} ／ 契約開始：${m.startDate}`;
+  renderDC(m);openModal('detail-modal');
+}
+function renderDC(m){
+  const mbks=bks().filter(b=>b.name===m.name).sort((a,b)=>a.date.localeCompare(b.date));
+  const _r=calcG(m),gt=_r.grantedTotal,used=_r.used,expired=_r.expired||0,remain=_r.remain;
+  document.getElementById('m-content').innerHTML=`
+    <div class="sgrid">
+      <div class="si"><div class="si-l">付与累計</div><div class="si-v">${gt}</div></div>
+      <div class="si"><div class="si-l">消化済み</div><div class="si-v">${used}</div></div>
+      <div class="si"><div class="si-l">残回数</div><div class="si-v" style="color:${remain>=4?'var(--red)':remain<0?'var(--amber)':'var(--accent)'}">${remain}</div></div>
+      <div class="si"><div class="si-l">失効済み</div><div class="si-v" style="color:var(--text3)">${m.expired||0}</div></div>
+    </div>
+    ${m.leaveStart?`<div class="ms-ttl">休会期間</div><div style="font-size:13px;color:var(--text2);background:var(--surface2);padding:10px 14px;border-radius:8px;">${m.leaveStart} 〜 ${m.leaveEnd}</div>`:''}
+    <div class="ms-ttl">予約履歴（${mbks.length}件）<span style="font-size:10px;color:var(--teal);margin-left:8px">● 補講 = 回数カウントなし</span></div>
+    <div class="bklist">${mbks.length===0?'<div style="font-size:13px;color:var(--text3);padding:8px">予約データなし</div>':
+    mbks.map(b=>{
+      const isMK=!!makeup[b.key];
+      const cls=b.cancelled?'cancelled':isMK?'makeup':'done';
+      const tag=b.cancelled?'<span class="bktag tag-cancel">キャンセル</span>':isMK?'<span class="bktag tag-makeup">補講</span>':'<span class="bktag tag-done">消化</span>';
+      return `<div class="bkitem ${cls}">
+        <span class="bkdate">${b.date}</span>${tag}
+        <span style="font-size:11px;color:var(--text2)">${b.instr||''}</span>
+        <span style="font-size:11px;color:var(--text3)">${b.time||''}</span>
+        ${!b.cancelled?`<button class="makeup-toggle ${isMK?'on':''}" onclick="toggleMakeup('${b.key}',${m.id})">${isMK?'補講解除':'補講に設定'}</button>`:''}
+      </div>`;
+    }).join('')}</div>`;
+}
+function toggleMakeup(key,mid){
+  if(makeup[key])delete makeup[key];else makeup[key]=true;
+  save();allData=calcAll();renderStats();renderMembers();
+  const m=members.find(x=>x.id===mid);if(m)renderDC(m);
+}
+function initDropArea(){
+  const da=document.getElementById('drop-area');
+  if(!da||da._init)return;
+  da._init=true;
+  da.addEventListener('dragover',e=>{e.preventDefault();da.classList.add('drag');});
+  da.addEventListener('dragleave',()=>da.classList.remove('drag'));
+  da.addEventListener('drop',e=>{e.preventDefault();da.classList.remove('drag');const f=e.dataTransfer.files[0];if(f)readCSV(f);});
+}
+function handleFileSelect(inp){if(inp.files[0])readCSV(inp.files[0]);}
+function readCSV(file){
+  const tryEnc=(enc)=>new Promise(res=>{
+    const r=new FileReader();
+    r.onload=e=>res(e.target.result);
+    r.onerror=()=>res(null);
+    r.readAsText(file,enc);
+  });
+  tryEnc('Shift_JIS').then(t=>{
+    if(t&&t.includes('予約')&&!t.includes('\uFFFD')){
+      parseCSV(t);
+    }else{
+      tryEnc('UTF-8').then(t2=>{
+        if(t2&&t2.includes('予約')){parseCSV(t2);}
+        else{alert('ファイルの読み込みに失敗しました。\nCSVファイルを確認してください。');}
+      });
+    }
+  });
+}
+function parseCSV(text){
+  const lines=text.split('\n').filter(l=>l.trim());
+  if(lines.length<2){alert('データが見つかりません');return;}
+  const hdr=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+  const ci={受付日:hdr.findIndex(h=>h.includes('受付日')),キャンセル:hdr.findIndex(h=>h.includes('キャンセル')),名前:hdr.findIndex(h=>h==='名前'||h.includes('お名前')),予約日:hdr.findIndex(h=>h==='予約日'),予約時間:hdr.findIndex(h=>h.includes('予約時間')),予約対象:hdr.findIndex(h=>h.includes('予約対象')),メール:hdr.findIndex(h=>h.includes('メール'))};
+  const rows=[];
+  for(let i=1;i<lines.length;i++){
+    const cols=splitCSV(lines[i]);
+    const name=ci.名前>=0?cols[ci.名前]?.trim():'';
+    const dateRaw=ci.予約日>=0?cols[ci.予約日]?.trim():'';
+    if(!name||!dateRaw)continue;
+    const date=normDate(dateRaw);if(!date)continue;
+    const cancelled=ci.キャンセル>=0&&(cols[ci.キャンセル]?.trim()||'')!=='';
+    const time=ci.予約時間>=0?(cols[ci.予約時間]?.trim()||''):'';
+    const yoyakuTaisho=ci.予約対象>=0?(cols[ci.予約対象]?.trim()||''):'';
+    const storeM=yoyakuTaisho.match(/【(.+?)】/);
+    const store=storeM?storeM[1]:'';
+    const instrRaw=yoyakuTaisho.replace(/【.+?】/,'').split('(')[0].trim();
+    const instr=instrRaw||'';
+    // ★ 開始時間のみ抽出（14:30〜15:30 → 14:30）
+    const timeStr=time.split(/[-~〜]/)[0].trim();
+    const emailCol=ci.メール>=0?(cols[ci.メール]?.trim().toLowerCase()||''):'';
+    let resolvedName=name;
+    if(emailCol){
+      const byEmail=members.find(m=>m.email&&m.email===emailCol);
+      if(byEmail)resolvedName=byEmail.name;
+    }
+    rows.push({name:resolvedName,date,cancelled,time:timeStr,instr,store,email:emailCol});
+  }
+  if(!rows.length){alert('有効な予約データが見つかりません。列名を確認してください。');return;}
+  let nc=0,oc=0;
+  // ★ キーに時間を含める（同日2レッスン対応）
+  rows.forEach(r=>{const key=`${r.name}_${r.date}_${r.time||''}`;if(bkMap[key])oc++;else nc++;});
+  pendingImport={rows,nc,oc};
+  document.getElementById('upload-stats').innerHTML=`<span>新規追加: <span class="result-num" style="color:var(--accent)">${nc}件</span></span><span>上書き更新: <span class="result-num" style="color:var(--amber)">${oc}件</span></span><span>合計: <span class="result-num">${rows.length}件</span></span>`;
+  document.getElementById('csv-preview-rows').innerHTML=rows.slice(0,10).map(r=>`${r.date} ${r.time||''} ${r.name} ${r.cancelled?'[キャンセル]':'[予約]'}`).join('<br>')+(rows.length>10?`<br>…他 ${rows.length-10} 件`:'');
+  document.getElementById('upload-preview').style.display='block';
+}
+function splitCSV(line){
+  const result=[];
+  let cur='',inQ=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"'){
+      if(inQ&&line[i+1]==='"'){cur+='"';i++;}
+      else inQ=!inQ;
+    }else if(ch===','&&!inQ){
+      result.push(cur.trim());cur='';
+    }else{cur+=ch;}
+  }
+  result.push(cur.trim());
+  return result;
+}
+function normDate(s){
+  if(!s)return null;
+  let m=s.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+  if(m)return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+  m=s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if(m)return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+  return null;
+}
+async function confirmImport(){
+  if(!pendingImport)return;
+  const {rows,nc,oc}=pendingImport;
+  const newBks=[];
+  // ★ キーに時間を含める（同日2レッスン対応）
+  rows.forEach(r=>{const key=`${r.name}_${r.date}_${r.time||''}`;bkMap[key]={...r,key};newBks.push(bkMap[key]);});
+  const now=new Date().toLocaleString('ja-JP');
+  const entry={time:now,nc,oc};
+  importHist.unshift(entry);if(importHist.length>20)importHist=importHist.slice(0,20);
+  save();
+  showLoading(true);
+  try{
+    await sbSaveBookings(newBks);
+    await sbSaveImportHist(entry);
+  }catch(e){console.error('SB save error:',e);}
+  showLoading(false);
+  pendingImport=null;allData=calcAll();renderStats();renderMembers();checkUnregistered();
+  document.getElementById('upload-preview').style.display='none';document.getElementById('csv-file-input').value='';
+  renderIH();alert(`インポート完了！\n新規: ${nc}件 / 上書き: ${oc}件`);
+}
+function cancelImport(){pendingImport=null;document.getElementById('upload-preview').style.display='none';document.getElementById('csv-file-input').value='';}
+function clearImportHist(){
+  if(!confirm("取込履歴をすべて削除しますか？"))return;
+  importHist=[];
+  localStorage.setItem('piratis_ihist','[]');
+  renderIH();
+}
+function renderIH(){
+  document.getElementById('import-history-body').innerHTML=importHist.length===0
+    ?'<tr><td colspan="3" style="text-align:center;color:var(--text3);padding:20px">まだ取込履歴がありません</td></tr>'
+    :importHist.map(h=>`<tr><td class="mc" style="font-size:12px">${h.time}</td><td class="mc" style="color:var(--accent)">${h.nc}</td><td class="mc" style="color:var(--amber)">${h.oc}</td></tr>`).join('');
+}
+function setMF(f){mf=f;['all','active','leave','retired'].forEach(k=>document.getElementById('mf-'+k).classList.toggle('active',k===f));renderMaster();}
+function downloadMasterTemplate(){
+  const header='名前,コース,契約開始日,繰越回数,休会開始日,休会終了日,メールアドレス';
+  const sample='山田花子,月2回,2025-04-01,0,,,example@gmail.com';
+  const blob=new Blob([header+'\n'+sample],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='piratis_会員マスタテンプレート.csv';
+  a.click();
+}
+function handleMasterCSV(input){
+  if(!input.files[0])return;
+  const r=new FileReader();
+  r.onload=e=>{
+    let text=e.target.result;
+    if(text.includes('\uFFFD')){
+      const r2=new FileReader();
+      r2.onload=e2=>parseMasterCSV(e2.target.result);
+      r2.readAsText(input.files[0],'Shift_JIS');
+    }else parseMasterCSV(text);
+  };
+  r.readAsText(input.files[0],'UTF-8');
+}
+async function parseMasterCSV(text){
+  const lines=text.split('\n').filter(l=>l.trim());
+  if(lines.length<2){alert('データが見つかりません');return;}
+  const COURSES=['月2回','月3回','月4回','週1回','週2回','隔週1回'];
+  let added=0,skipped=0;
+  for(let i=1;i<lines.length;i++){
+    const cols=lines[i].split(',').map(v=>v.trim().replace(/^"|"$/g,''));
+    const name=cols[0];
+    const course=COURSES.includes(cols[1])?cols[1]:'月2回';
+    const startDate=normDate(cols[2])||new Date().toISOString().slice(0,10);
+    const carryOver=parseInt(cols[3])||0;
+    const leaveStart=cols[4]?normDate(cols[4]):null;
+    const leaveEnd=cols[5]?normDate(cols[5]):null;
+    const email=(cols[6]||'').trim().toLowerCase();
+    if(!name){skipped++;continue;}
+    if(email&&members.find(m=>m.email&&m.email===email)){skipped++;continue;}
+    if(!email&&members.find(m=>m.name===name)){skipped++;continue;}
+    members.push({id:nextId++,name,course,startDate,carryOver,email,leaveStart,leaveEnd,retired:false,
+      courseHistory:[{course,startDate}]});
+    added++;
+  }
+  save();
+  showLoading(true);
+  try{await sbSaveMembers();}catch(e){console.error('SB save error:',e);}
+  showLoading(false);
+  allData=calcAll();renderStats();renderMembers();renderMaster();
+  checkUnregistered();
+  alert(`会員マスタを更新しました\n追加: ${added}名 / スキップ: ${skipped}名（既存・空行）`);
+}
+function checkUnregistered(){
+  const emailMap={};
+  members.forEach(m=>{if(m.email)emailMap[m.email]=m;});
+  const unregistered=Object.values(bkMap).reduce((acc,b)=>{
+    const n=b.name;
+    if(!n)return acc;
+    const byEmail=b.email&&emailMap[b.email];
+    const byName=members.find(m=>m.name===n);
+    if(!byEmail&&!byName&&!acc.includes(n))acc.push(n);
+    return acc;
+  },[]);
+  const alertEl=document.getElementById('unregistered-alert');
+  const list=document.getElementById('unregistered-list');
+  if(!alertEl||!list)return;
+  if(unregistered.length===0){alertEl.style.display='none';return;}
+  alertEl.style.display='block';
+  list.innerHTML=unregistered.map(n=>
+    `<span style="display:inline-block;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2px 10px;font-size:12px;margin:3px;">${n}</span>`
+  ).join('');
+}
+function bulkAddUnregistered(){
+  const emailMap={};
+  members.forEach(m=>{if(m.email)emailMap[m.email]=m;});
+  const unregistered=Object.values(bkMap).reduce((acc,b)=>{
+    const n=b.name;
+    if(!n)return acc;
+    const byEmail=b.email&&emailMap[b.email];
+    const byName=members.find(m=>m.name===n);
+    if(!byEmail&&!byName&&!acc.includes(n))acc.push(n);
+    return acc;
+  },[]);
+  const today=new Date().toISOString().slice(0,10);
+  unregistered.forEach(name=>{
+    const earliest=Object.values(bkMap)
+      .filter(b=>b.name===name).map(b=>b.date).sort()[0]||today;
+    members.push({id:nextId++,name,course:'月2回',startDate:earliest,carryOver:0,
+      leaveStart:null,leaveEnd:null,retired:false,courseHistory:[{course:'月2回',startDate:earliest}]});
+  });
+  save();allData=calcAll();renderStats();renderMembers();renderMaster();checkUnregistered();
+  alert(`${unregistered.length}名を会員マスタに追加しました。\nコース・開始日は会員マスタタブで編集してください。`);
+}
+function renderMaster(){
+  const q=document.getElementById('master-search').value.trim();
+  let data=[...members];
+  if(q)data=data.filter(m=>m.name.includes(q));
+  if(mf==='active')data=data.filter(m=>!m.retired&&!isLeave(m,TODAY.getFullYear(),TODAY.getMonth()+1));
+  if(mf==='leave')data=data.filter(m=>!m.retired&&isLeave(m,TODAY.getFullYear(),TODAY.getMonth()+1));
+  if(mf==='retired')data=data.filter(m=>m.retired);
+  document.getElementById('master-body').innerHTML=data.map(m=>{
+    const ol=isLeave(m,TODAY.getFullYear(),TODAY.getMonth()+1);
+    const st=m.retired?'retired':ol?'leave':'active';
+    const sl=m.retired?'退会':ol?'休会中':'在籍';
+    return `<div class="member-edit-row">
+      <span style="width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:1px;">
+        ${m.email?`<span style="font-size:10px;color:var(--text3)">${m.email}</span>`:""}
+        <span style="font-weight:500">${m.name}</span>
+      </span>
+      <span style="width:80px;flex-shrink:0"><span class="nbadge ${cc(m.course)}">${m.course}</span></span>
+      <span style="width:100px;flex-shrink:0;font-size:12px;color:var(--text2)">${m.startDate}</span>
+      <span style="width:60px;flex-shrink:0"><span class="me-tag ${st}">${sl}</span></span>
+      <span style="flex:1;font-size:12px;color:var(--text2)">${m.leaveStart?`${m.leaveStart}〜${m.leaveEnd}`:`—`}</span>
+      <button class="edit-btn" onclick="openME(${m.id})">編集</button>
+    </div>`
+  }).join('');
+}
+function openME(id){
+  const m=members.find(x=>x.id===id);
+  document.getElementById('edit-id').value=id;
+  document.getElementById('edit-title').textContent=`${m.name} の情報編集`;
+  document.getElementById('edit-name').value=m.name;
+  document.getElementById('edit-email').value=m.email||'';
+  document.getElementById('edit-course').value=m.course;
+  document.getElementById('edit-start').value=m.startDate;
+  document.getElementById('edit-ls').value=m.leaveStart||'';
+  document.getElementById('edit-le').value=m.leaveEnd||'';
+  document.getElementById('edit-retired').checked=!!m.retired;
+  document.getElementById('edit-msg').textContent='';
+  renderCourseHistoryList(m);
+  openModal('member-edit-modal');
+}
+function renderCourseHistoryList(m){
+  const hist=(m.courseHistory||[{course:m.course,startDate:m.startDate}])
+    .slice().sort((a,b)=>a.startDate.localeCompare(b.startDate));
+  const id=m.id;
+  document.getElementById('course-history-list').innerHTML=hist.map((h,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border-radius:6px;margin-bottom:5px;font-size:13px;">
+      <span style="font-weight:500;min-width:70px">${h.course}</span>
+      <span style="font-family:var(--mono);color:var(--text2);flex:1">${h.startDate} 〜</span>
+      ${hist.length>1?`<button onclick="removeCourseHistory(${id},${i})" style="font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:none;cursor:pointer;color:var(--text3);" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--text3)';this.style.borderColor='var(--border)'">削除</button>`:'<span style="font-size:10px;color:var(--text3)">最初のコース</span>'}
+    </div>`).join('');
+}
+function addCourseHistory(){
+  const id=parseInt(document.getElementById('edit-id').value);
+  const course=document.getElementById('ch-course').value;
+  const date=document.getElementById('ch-date').value;
+  if(!date){alert('変更開始日を入力してください');return;}
+  const m=members.find(x=>x.id===id);
+  if(!m.courseHistory)m.courseHistory=[{course:m.course,startDate:m.startDate}];
+  m.courseHistory=m.courseHistory.filter(h=>h.startDate!==date);
+  m.courseHistory.push({course,startDate:date});
+  m.courseHistory.sort((a,b)=>a.startDate.localeCompare(b.startDate));
+  m.course=m.courseHistory[m.courseHistory.length-1].course;
+  save();renderCourseHistoryList(m);
+  document.getElementById('ch-date').value='';
+}
+function removeCourseHistory(id,idx){
+  const m=members.find(x=>x.id===id);
+  if(!m.courseHistory||m.courseHistory.length<=1){alert('最初のコースは削除できません');return;}
+  m.courseHistory.splice(idx,1);
+  m.courseHistory.sort((a,b)=>a.startDate.localeCompare(b.startDate));
+  m.course=m.courseHistory[m.courseHistory.length-1].course;
+  save();renderCourseHistoryList(m);
+}
+async function saveMemberEdit(){
+  const id=parseInt(document.getElementById('edit-id').value),m=members.find(x=>x.id===id),msg=document.getElementById('edit-msg');
+  m.name=document.getElementById('edit-name').value.trim();
+  m.email=document.getElementById('edit-email').value.trim().toLowerCase();
+  const newCourse=document.getElementById('edit-course').value;
+  const newStart=document.getElementById('edit-start').value;
+  if(!m.courseHistory)m.courseHistory=[{course:m.course,startDate:m.startDate}];
+  if(m.startDate!==newStart){m.courseHistory[0].startDate=newStart;}
+  if(m.course!==newCourse&&document.getElementById('ch-date').value===''){
+    m.courseHistory[m.courseHistory.length-1].course=newCourse;
+  }
+  m.course=m.courseHistory.sort((a,b)=>a.startDate.localeCompare(b.startDate))[m.courseHistory.length-1].course;
+  m.startDate=newStart;
+  m.leaveStart=document.getElementById('edit-ls').value||null;
+  m.leaveEnd=document.getElementById('edit-le').value||null;
+  m.retired=document.getElementById('edit-retired').checked;
+  if(!m.name){msg.style.color='var(--red)';msg.textContent='氏名を入力してください';return;}
+  save();
+  showLoading(true);
+  try{await sbSaveMembers();}catch(e){console.error('SB save error:',e);}
+  showLoading(false);
+  allData=calcAll();renderStats();renderMembers();
+  msg.style.color='var(--accent)';msg.textContent='保存しました';
+  setTimeout(()=>{closeModal('member-edit-modal');},900);
+}
+function openAddMember(){
+  document.getElementById('new-name').value='';document.getElementById('new-start').value=TODAY.toISOString().slice(0,10);document.getElementById('new-carry').value='0';document.getElementById('add-msg').textContent='';
+  openModal('add-member-modal');
+}
+async function addMember(){
+  const name=document.getElementById('new-name').value.trim(),course=document.getElementById('new-course').value,start=document.getElementById('new-start').value,carry=parseInt(document.getElementById('new-carry').value)||0,msg=document.getElementById('add-msg');
+  if(!name){msg.style.color='var(--red)';msg.textContent='氏名を入力してください';return;}
+  if(!start){msg.style.color='var(--red)';msg.textContent='契約開始日を入力してください';return;}
+  const emailVal=document.getElementById('new-email')?.value.trim().toLowerCase()||'';
+  members.push({id:nextId++,name,course,startDate:start,carryOver:carry,email:emailVal,leaveStart:null,leaveEnd:null,retired:false,courseHistory:[{course,startDate:start}]});
+  save();
+  showLoading(true);
+  try{await sbSaveMembers();}catch(e){console.error('SB save error:',e);}
+  showLoading(false);
+  allData=calcAll();renderStats();renderMembers();
+  msg.style.color='var(--accent)';msg.textContent=`${name} を追加しました`;setTimeout(()=>closeModal('add-member-modal'),900);
+}
+// ★ 手動予約入力
+function openManualBk(){
+  const msel=document.getElementById('mbk-name');
+  msel.innerHTML=members.filter(m=>!m.retired).sort((a,b)=>a.name.localeCompare(b.name,'ja')).map(m=>`<option value="${m.name}">${m.name}</option>`).join('');
+  const isel=document.getElementById('mbk-instr');
+  isel.innerHTML=['（指定なし）',...instructors].map(i=>`<option value="${i==='（指定なし）'?'':i}">${i}</option>`).join('');
+  document.getElementById('mbk-date').value=TODAY.toISOString().slice(0,10);
+  document.getElementById('mbk-time').value='';
+  document.getElementById('mbk-msg').textContent='';
+  openModal('manual-bk-modal');
+}
+async function saveManualBk(){
+  const name=document.getElementById('mbk-name').value;
+  const date=document.getElementById('mbk-date').value;
+  const timeRaw=document.getElementById('mbk-time').value;
+  const instr=document.getElementById('mbk-instr').value;
+  const store=document.getElementById('mbk-store').value;
+  const type=document.getElementById('mbk-type').value;
+  const msg=document.getElementById('mbk-msg');
+  if(!name||!date){msg.style.color='var(--red)';msg.textContent='会員名と予約日は必須です';return;}
+  const cancelled=type==='cancel';
+  const isMakeup=type==='makeup';
+  const key=`${name}_${date}_${timeRaw}`;
+  const bk={key,name,date,cancelled,instr,store,time:timeRaw,makeup:isMakeup,email:''};
+  bkMap[key]=bk;
+  if(isMakeup)makeup[key]=true;
+  save();
+  showLoading(true);
+  try{await sbSaveBookings([bk]);}catch(e){console.error(e);}
+  showLoading(false);
+  allData=calcAll();renderStats();renderMembers();populateMonthSelectors();
+  msg.style.color='var(--accent)';msg.textContent='追加しました';
+  setTimeout(()=>closeModal('manual-bk-modal'),900);
+}
+const ICOLS=['#2D5A3D','#1A5276','#6C3483','#B5621E','#117A65','#7D6608','#922B21'];
+function populateMonthSelectors(){
+  const allDone=bks().filter(b=>!b.cancelled&&!makeup[b.key]);
+  const months=[...new Set(allDone.map(b=>b.date.slice(0,7)))].sort().reverse();
+  ['instr-month-sel','analytics-month-sel'].forEach(selId=>{
+    const sel=document.getElementById(selId);
+    if(!sel)return;
+    const cur=sel.value;
+    while(sel.options.length>1)sel.remove(1);
+    months.forEach(m=>{
+      const opt=document.createElement('option');
+      opt.value=m;
+      const [y,mo]=m.split('-');
+      opt.textContent=`${y}年${parseInt(mo)}月`;
+      sel.appendChild(opt);
+    });
+    if(cur&&cur!=='all')sel.value=cur;
+  });
+}
+function filterByMonth(items,selId){
+  const sel=document.getElementById(selId);
+  const m=sel?sel.value:'all';
+  const storeSelId=selId.replace('month','store');
+  const storeSel=document.getElementById(storeSelId);
+  const store=storeSel?storeSel.value:'all';
+  return items
+    .filter(b=>m==='all'||b.date.startsWith(m))
+    .filter(b=>store==='all'||b.store===store||(b.store===undefined&&store==='all'));
+}
+function renderInstructors(){
+  const allDone=bks().filter(b=>!b.cancelled&&!makeup[b.key]);
+  populateMonthSelectors();
+  const done=filterByMonth(allDone,'instr-month-sel');
+  const selMonth=document.getElementById('instr-month-sel')?.value||'all';
+  const monthLabel=selMonth==='all'?'全期間':selMonth.replace('-','年')+'月';
+  const iS=instructors.map(instr=>{const ib=done.filter(b=>b.instr===instr);return {instr,cnt:ib.length,mems:[...new Set(ib.map(b=>b.name))],ib};}).sort((a,b)=>b.cnt-a.cnt);
+  document.getElementById('instr-stats').innerHTML=`
+    <div class="scard"><div class="slabel">インストラクター数</div><div class="sval">${instructors.length}</div></div>
+    <div class="scard"><div class="slabel">${monthLabel} セッション数</div><div class="sval green">${done.length}</div></div>`;
+  document.getElementById('instr-grid').innerHTML=iS.map((s,i)=>{
+    const color=ICOLS[i%ICOLS.length];
+    const rows=s.mems.map(name=>{
+      const memberBks=s.ib.filter(b=>b.name===name).sort((a,b)=>a.date.localeCompare(b.date));
+      const cnt=memberBks.length;
+      const bkRows=memberBks.map(b=>{
+        const d=new Date(b.date);
+        const dateStr=`${d.getMonth()+1}/${d.getDate()}`;
+        return `<div style="font-size:11px;color:var(--text2);padding:2px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;"><span style="font-family:var(--mono);min-width:40px">${dateStr}</span><span style="color:var(--text3)">${b.time||''}</span></div>`;
+      }).join('');
+      return `<div class="imem" style="flex-direction:column;align-items:flex-start;gap:4px;"><div style="display:flex;justify-content:space-between;width:100%;"><span class="imem-name">${name}</span><span class="imem-cnt">${cnt}回</span></div><div style="width:100%;">${bkRows}</div></div>`;
+    }).join('');
+    return `<div class="icard"><div class="icard-hdr"><div><div class="iname" style="color:${color}">${s.instr}</div><div class="icnt">${s.cnt}セッション ／ ${s.mems.length}名担当</div></div><button class="del-btn" onclick="delInstr('${s.instr}')">削除</button></div><div class="ilist">${rows||'<div style="font-size:12px;color:var(--text3);padding:8px">担当データなし</div>'}</div></div>`;
+  }).join('');
+}
+function addInstructor(){
+  const name=document.getElementById('new-instr').value.trim().toUpperCase(),msg=document.getElementById('instr-msg');
+  if(!name){msg.style.color='var(--red)';msg.textContent='名前を入力してください';return;}
+  if(instructors.includes(name)){msg.style.color='var(--red)';msg.textContent='すでに登録されています';return;}
+  instructors.push(name);save();sbSaveInstructors().catch(e=>console.error(e));msg.style.color='var(--accent)';msg.textContent=`${name} を追加しました`;
+  setTimeout(()=>{closeModal('add-instr-modal');renderInstructors();},900);
+}
+function delInstr(name){if(!confirm(`${name} を削除しますか？`))return;instructors=instructors.filter(i=>i!==name);save();sbSaveInstructors().catch(e=>console.error(e));renderInstructors();}
+function renderAnalytics(){
+  const allDone=bks().filter(b=>!b.cancelled&&!makeup[b.key]);
+  populateMonthSelectors();
+  const done=filterByMonth(allDone,'analytics-month-sel');
+  const selMonth=document.getElementById('analytics-month-sel')?.value||'all';
+  const vm={};done.forEach(b=>{vm[b.name]=(vm[b.name]||0)+1;});
+  const vr=Object.entries(vm).sort((a,b)=>b[1]-a[1]).slice(0,10),maxV=vr[0]?.[1]||1;
+  document.getElementById('visit-rank').innerHTML=vr.map(([n,c])=>`<div class="barrow"><span class="barlabel">${n}</span><div class="bartrack"><div class="barfill" style="width:${(c/maxV*100).toFixed(0)}%"><span class="barval">${c}回</span></div></div></div>`).join('');
+  const im={};done.forEach(b=>{im[b.instr]=(im[b.instr]||0)+1;});
+  const ir=Object.entries(im).sort((a,b)=>b[1]-a[1]),maxI=ir[0]?.[1]||1;
+  document.getElementById('instr-rank').innerHTML=ir.map(([n,c],i)=>`<div class="barrow"><span class="barlabel">${n}</span><div class="bartrack"><div class="barfill ${['','blue','amber','purple'][i%4]}" style="width:${(c/maxI*100).toFixed(0)}%"><span class="barval">${c}回</span></div></div></div>`).join('');
+  const days=['月','火','水','木','金','土','日'],hours=['09:00','10:00','11:00','11:30','13:00','14:00','15:00','19:00','20:00'];
+  const hmap={};done.forEach(b=>{const d=new Date(b.date);const dow=d.getDay()===0?6:d.getDay()-1;hmap[`${dow}_${b.time}`]=(hmap[`${dow}_${b.time}`]||0)+1;});
+  const maxH=Math.max(...Object.values(hmap),1);
+  let html=`<div class="hm-cell"></div>${days.map(d=>`<div class="hm-cell hm-hdr" style="text-align:center">${d}</div>`).join('')}`;
+  hours.forEach(h=>{html+=`<div class="hm-cell hm-lbl">${h}</div>`;for(let i=0;i<7;i++){const v=hmap[`${i}_${h}`]||0;const op=v?(.15+v/maxH*.8).toFixed(2):0;html+=`<div class="hm-cell" style="background:${v?`rgba(45,90,61,${op})`:'var(--surface2)'};${v?'color:#fff':'color:var(--text3)'};">${v||''}</div>`;}});
+  document.getElementById('heatmap').innerHTML=html;
+  const mm={};done.forEach(b=>{const ym=selMonth==='all'?b.date.slice(0,7):b.date;mm[ym]=(mm[ym]||0)+1;});
+  const months=Object.keys(mm).sort();
+  setTimeout(()=>drawChart('trend-chart',months.map(m=>m.replace('-','/')),months.map(m=>mm[m])),50);
+}
+function drawChart(id,labels,data){
+  const canvas=document.getElementById(id);if(!canvas)return;
+  const dpr=window.devicePixelRatio||1,W=canvas.offsetWidth||680,H=120;
+  canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
+  const pad={t:16,r:20,b:28,l:36},iW=W-pad.l-pad.r,iH=H-pad.t-pad.b,maxV=Math.max(...data,1);
+  ctx.strokeStyle='#E0DBD0';ctx.lineWidth=0.5;
+  [0,.5,1].forEach(r=>{const y=pad.t+iH*(1-r);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+iW,y);ctx.stroke();ctx.fillStyle='#9E9890';ctx.font='10px DM Mono,monospace';ctx.textAlign='right';ctx.fillText(Math.round(maxV*r),pad.l-4,y+3);});
+  const xStep=iW/Math.max(labels.length-1,1);
+  ctx.beginPath();ctx.moveTo(pad.l,pad.t+iH);data.forEach((v,i)=>ctx.lineTo(pad.l+i*xStep,pad.t+iH*(1-v/maxV)));ctx.lineTo(pad.l+(labels.length-1)*xStep,pad.t+iH);ctx.closePath();
+  const g=ctx.createLinearGradient(0,pad.t,0,pad.t+iH);g.addColorStop(0,'rgba(45,90,61,.18)');g.addColorStop(1,'rgba(45,90,61,0)');ctx.fillStyle=g;ctx.fill();
+  ctx.beginPath();ctx.strokeStyle='#2D5A3D';ctx.lineWidth=2;ctx.lineJoin='round';data.forEach((v,i)=>{const x=pad.l+i*xStep,y=pad.t+iH*(1-v/maxV);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();
+  data.forEach((v,i)=>{const x=pad.l+i*xStep,y=pad.t+iH*(1-v/maxV);ctx.beginPath();ctx.arc(x,y,3.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='#2D5A3D';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#6B6560';ctx.font='9px DM Mono,monospace';ctx.textAlign='center';ctx.fillText(labels[i],x,H-pad.b+12);});
+}
+
+function openCarryEdit(id){
+  const m=members.find(x=>x.id===id);
+  const r=calcG(m);
+  document.getElementById('carry-edit-id').value=id;
+  document.getElementById('carry-edit-name').textContent=m.name+' の繰越回数編集';
+  document.getElementById('carry-val').value=m.carryOver||0;
+  document.getElementById('carry-granted').textContent=r.grantedTotal;
+  document.getElementById('carry-used').textContent=r.used;
+  document.getElementById('carry-remain').textContent=r.remain;
+  document.getElementById('carry-msg').textContent='';
+  openModal('carry-edit-modal');
+}
+function stepCarry(d){
+  const el=document.getElementById('carry-val');
+  el.value=Math.max(0,(parseInt(el.value)||0)+d);
+}
+async function saveCarryEdit(){
+  const id=parseInt(document.getElementById('carry-edit-id').value);
+  const val=parseInt(document.getElementById('carry-val').value)||0;
+  const msg=document.getElementById('carry-msg');
+  const m=members.find(x=>x.id===id);
+  m.carryOver=val;
+  save();
+  showLoading(true);
+  try{await sbSaveMembers();}catch(e){console.error(e);}
+  showLoading(false);
+  allData=calcAll();renderStats();renderMembers();
+  // 表示を更新
+  const r=calcG(m);
+  document.getElementById('carry-granted').textContent=r.grantedTotal;
+  document.getElementById('carry-used').textContent=r.used;
+  document.getElementById('carry-remain').textContent=r.remain;
+  msg.style.color='var(--accent)';msg.textContent='保存しました';
+  setTimeout(()=>closeModal('carry-edit-modal'),900);
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+['detail-modal','member-edit-modal','add-member-modal','add-instr-modal','pw-modal','manual-bk-modal','carry-edit-modal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id))closeModal(id);});
+});
+document.addEventListener('DOMContentLoaded',()=>init());
+</script>
+</body>
+</html>
